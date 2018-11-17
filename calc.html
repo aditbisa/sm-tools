@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Kalkulator Serabi Matahari</title>
+  
+<style>
+@viewport {
+  width: device-width;
+}
+body {
+  font-family: Arial;
+  font-size: 12px;
+}
+i {
+  font-style: normal;
+}
+table {
+  border-collapse: collapse;
+}
+td, th {
+  border: 1px solid #ddd;
+  text-align: right;
+  padding: .25em .5em;
+}
+button {
+  border: 1px solid #999;
+  border-radius: 3px;
+  padding: .25em .5em;
+}
+
+td[code], th[reset] {
+  text-align: left;
+}
+i[color] {
+  display: block;
+  border-radius: 3px;
+  width: 1em;
+  height: 1em;
+}
+td[count] {
+  padding: 1px .5em;
+  vertical-align: middle;
+}
+input[count] {
+  border: none;
+  text-align: right;
+  width: 50px;
+  font-family: Arial;
+  font-weight: bold;
+  color: blue;
+}
+</style>
+  
+</head>
+<body>
+
+<table>
+  <tbody></tbody>
+  <tfoot>
+    <th reset colspan="3">
+      <button onClick="calc.reset()">Reset</button>
+    </th>
+    <th><i count></i></th>
+    <th><i total></i></th>
+  </tfoot>
+</table>
+
+<script>
+var $ = (s, a) => a ? document.querySelectorAll(s) : document.querySelector(s);
+
+var product = [
+  ['Ori',  'Original',      1.7, '#f9f9f9'],
+  ['Cok',  'Coklat',        2.0, '#ff2a2a'],
+  ['Dur',  'Durian',        2.0, '#ffff00'],
+  ['Nang', 'Nangka',        2.2, '#00d000'],
+  ['CKac', 'Coklat Kacang', 2.2, '#ff7400'],
+  ['CPis', 'Coklat Pisang', 2.2, '#0066ff'],
+  ['CKej', 'Coklat Keju',   2.5, '#ff5bcc']
+].map(p => { return {
+  code: p[0],
+  name: p[1],
+  price: p[2],
+  color: p[3]
+}});
+
+var data = {
+  items: [],
+  count: 0,
+  total: 0,
+  reset: function(){
+    this.items = product.map(p => { return {
+      price: p.price,
+      count: 0,
+      total: 0
+    }});
+    this.count = 0;
+    this.total = 0;
+  },
+  calculate: function(){
+    this.count = 0;
+    this.total = 0;
+    this.items.forEach(t => {
+      t.total = t.price * t.count;
+      this.count += t.count;
+      this.total += t.total;
+    }, this);
+  }
+};
+
+var calc = {
+  reset: function(){
+    data.reset();
+    $('input', true).forEach(inp => inp.value = 0);
+    this.refresh();
+  },
+  changeItem: function(idx, count){
+    data.items[idx].count = Number(count)||0;
+    data.calculate();
+    this.refresh(idx);
+  },
+  refresh: function(idx){
+    if (arguments.length) {
+      let r = 'tr[row="' + idx + '"]';
+      $(r + ' i[total]').innerText = data.items[idx].total.toFixed(1);
+    }
+    $('tfoot i[count]').innerText = data.count;
+    $('tfoot i[total]').innerText = data.total.toFixed(1);
+  }
+};
+
+(function(global, doc){
+  calc.reset();
+  
+  let sb = '';
+  product.forEach((p, i) => {
+    sb += '<tr row="' + i + '">\n';
+    sb += '  <td><i color style="background:' + p.color + '"></i></td>\n';
+    sb += '  <td code>' + p.code + '</td>\n';
+    sb += '  <td>' + p.price.toFixed(1) + '</td>\n';
+    sb += '  <td count><input count value="0"\n';
+    sb += '        onFocus="this.select()" onBlur="this.value=Number(this.value)||0"\n';
+    sb += '        onKeyup="calc.changeItem(' + i + ',this.value)"></td>\n';
+    sb += '  <td><i total>0.0</i></td>\n';
+    sb += '</tr>\n';
+  });
+  $('tbody').innerHTML = sb;
+  
+}(window, document));
+</script>
+
+</body>
+</html>
