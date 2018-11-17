@@ -5,12 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   
 <style>
-body, input {
+body, input, button {
   font-family: sans-serif;
-  font-size: 16px;
 }
 i {
   font-style: normal;
+}
+button {
+  border: 1px solid #999;
+  border-radius: 3px;
+  padding: .25rem .5rem;
 }
 table {
   border-collapse: collapse;
@@ -18,22 +22,28 @@ table {
 td, th {
   border: 1px solid #ddd;
   text-align: right;
-  padding: .25rem .5rem;
+  padding: .3rem .75rem;
 }
-button {
-  border: 1px solid #999;
-  border-radius: 3px;
-  padding: .25rem .5rem;
+thead th {
+  padding-top: .5rem;
+  padding-bottom: .5rem;
 }
-
-td[code], th[reset] {
+thead th:first-child, td[code], th[reset] {
   text-align: left;
 }
+thead th {
+  font-weight: normal;
+}
+td[code]  { width: 4rem; }
+td[price] { width: 2rem; }
+td[count] { width: 3rem; }
+td[total] { width: 3rem; }
 i[color] {
   display: block;
-  border-radius: 3px;
   width: 1rem;
   height: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 3px;
 }
 td[count] {
   padding: 1px .5rem;
@@ -42,7 +52,7 @@ td[count] {
 input[count] {
   border: none;
   text-align: right;
-  width: 4rem;
+  width: 3rem;
   font-weight: bold;
   color: blue;
 }
@@ -52,13 +62,19 @@ input[count] {
 <body>
 
 <table>
+  <thead>
+    <th colspan="2">Rasa</th>
+    <th>Harga</th>
+    <th>Jumlah</th>
+    <th>Total</th>
+  </thead>
   <tbody></tbody>
   <tfoot>
     <th reset colspan="3">
       <button onClick="calc.reset()">Reset</button>
     </th>
-    <th><i count></i></th>
-    <th><i total></i></th>
+    <th><i count>0.0</i></th>
+    <th><i total>0.0</i></th>
   </tfoot>
 </table>
 
@@ -107,8 +123,8 @@ var data = {
 var calc = {
   reset: function(){
     data.reset();
-    $('input', true).forEach(inp => inp.value = 0);
-    this.refresh();
+    $('input[count]', true).forEach(inp => inp.value = 0);
+    $('i[total],i[count]', true).forEach(elm => elm.innerText = '0.0');
   },
   changeItem: function(idx, count){
     data.items[idx].count = Number(count)||0;
@@ -126,18 +142,19 @@ var calc = {
 };
 
 (function(global, doc){
+  
   calc.reset();
   
   let sb = '';
   product.forEach((p, i) => {
     sb += '<tr row="' + i + '">\n';
-    sb += '  <td><i color style="background:' + p.color + '"></i></td>\n';
+    sb += '  <td color><i color style="background:' + p.color + '"></i></td>\n';
     sb += '  <td code>' + p.code + '</td>\n';
-    sb += '  <td>' + p.price.toFixed(1) + '</td>\n';
+    sb += '  <td price>' + p.price.toFixed(1) + '</td>\n';
     sb += '  <td count><input count value="0"\n';
     sb += '        onFocus="this.select()" onBlur="this.value=Number(this.value)||0"\n';
     sb += '        onKeyup="calc.changeItem(' + i + ',this.value)"></td>\n';
-    sb += '  <td><i total>0.0</i></td>\n';
+    sb += '  <td total><i total>0.0</i></td>\n';
     sb += '</tr>\n';
   });
   $('tbody').innerHTML = sb;
