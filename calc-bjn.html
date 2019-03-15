@@ -171,7 +171,7 @@ var calc = {
     sb += '  <td color><i color style="background:' + p.color + '"></i></td>\n';
     sb += '  <td code>' + p.code + '</td>\n';
     sb += '  <td price>' + p.price.toFixed(1) + '</td>\n';
-    sb += '  <td count><input count value="0"\n';
+    sb += '  <td count><input count type="number" value="0"\n';
     sb += '        onFocus="this.select()" onBlur="this.value=Number(this.value)||0"\n';
     sb += '        onKeyup="calc.changeItem(' + i + ',this.value)"></td>\n';
     sb += '  <td total><i total>0.0</i></td>\n';
