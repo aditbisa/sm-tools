@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Kalkulator Serabi Matahari</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta property="og:title" content="Kalkulator Serabi Matahari">
+  <meta property="og:description" content="Mau tau berapa isi dompet yang musti keluar buat menikmati Serabi Matahari?">
+  <meta property="og:url" content="https://teh-botol.github.io/sm-tools/calc-bjn.html">
+  
+<style>
+body, input, button {
+  font-family: sans-serif;
+  font-size: 100%;
+}
+i {
+  font-style: normal;
+}
+a {
+  text-decoration: none;
+  color: #1448c3;
+}
+button {
+  border: 1px solid #999;
+  border-radius: 3px;
+  padding: .25rem .5rem;
+}
+table {
+  border-collapse: collapse;
+}
+thead {
+  background: #f3f3f3;
+}
+td, th {
+  border: 1px solid #ddd;
+  text-align: right;
+  padding: .3rem .75rem;
+}
+thead th {
+  padding-top: .5rem;
+  padding-bottom: .5rem;
+}
+thead th:first-child, td[code], th[reset] {
+  text-align: left;
+}
+thead th {
+  font-weight: normal;
+}
+td[code]  { width: 4rem; }
+td[price] { width: 2rem; }
+td[count] { width: 3rem; }
+td[total] { width: 3rem; }
+i[color] {
+  display: block;
+  width: 1rem;
+  height: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 3px;
+}
+td[count] {
+  padding: 1px .5rem;
+  vertical-align: middle;
+}
+input[count] {
+  border: none;
+  text-align: right;
+  width: 3rem;
+  font-weight: bold;
+  color: blue;
+}
+</style>
+  
+</head>
+<body>
+
+<table>
+  <thead>
+    <tr>
+      <th colspan="5" style="text-align:center;color:green">
+        <strong>GoFood BJN</strong>
+      </th>
+    </tr>
+    <tr>
+      <th colspan="2">Rasa</th>
+      <th>Harga</th>
+      <th>Jumlah</th>
+      <th>Total</th>
+    </tr>
+  </thead>
+  <tbody></tbody>
+  <tfoot>
+    <tr>
+      <th reset colspan="3">
+        <button onClick="calc.reset()">Reset</button>
+      </th>
+      <th><i count>0</i></th>
+      <th><i total>0.0</i></th>
+    </tr>
+  </tfoot>
+</table>
+
+<script>
+var $ = (s, a) => a ? document.querySelectorAll(s) : document.querySelector(s);
+
+var product = [
+  ['Ori',  'Original',      2.2, '#f9f9f9'],
+  ['Cok',  'Coklat',        2.5, '#ff2a2a'],
+  ['Dur',  'Durian',        2.5, '#ffff00'],
+  ['Nang', 'Nangka',        2.8, '#00d000'],
+  ['CKac', 'Coklat Kacang', 2.8, '#ff7400'],
+  ['CPis', 'Coklat Pisang', 2.8, '#0066ff'],
+  ['CKej', 'Coklat Keju',   3.0, '#ff5bcc']
+].map(p => { return {
+  code: p[0],
+  name: p[1],
+  price: p[2],
+  color: p[3]
+}});
+
+var data = {
+  items: [],
+  count: 0,
+  total: 0,
+  reset: function(){
+    this.items = product.map(p => { return {
+      price: p.price,
+      count: 0,
+      total: 0
+    }});
+    this.count = 0;
+    this.total = 0;
+  },
+  calculate: function(){
+    this.count = 0;
+    this.total = 0;
+    this.items.forEach(t => {
+      t.total = t.price * t.count;
+      this.count += t.count;
+      this.total += t.total;
+    }, this);
+  }
+};
+
+var calc = {
+  reset: function(){
+    data.reset();
+    $('input[count]', true).forEach(inp => inp.value = 0);
+    $('i[total],i[count]', true).forEach(elm => elm.innerText = '0.0');
+  },
+  changeItem: function(idx, count){
+    data.items[idx].count = Number(count)||0;
+    data.calculate();
+    this.refresh(idx);
+  },
+  refresh: function(idx){
+    if (arguments.length) {
+      let r = 'tr[row="' + idx + '"]';
+      $(r + ' i[total]').innerText = data.items[idx].total.toFixed(1);
+    }
+    $('tfoot i[count]').innerText = data.count;
+    $('tfoot i[total]').innerText = data.total.toFixed(1);
+  }
+};
+
+(function(global, doc){
+  
+  calc.reset();
+  
+  let sb = '';
+  product.forEach((p, i) => {
+    sb += '<tr row="' + i + '">\n';
+    sb += '  <td color><i color style="background:' + p.color + '"></i></td>\n';
+    sb += '  <td code>' + p.code + '</td>\n';
+    sb += '  <td price>' + p.price.toFixed(1) + '</td>\n';
+    sb += '  <td count><input count type="number" value="0"\n';
+    sb += '        onFocus="this.select()" onBlur="this.value=Number(this.value)||0"\n';
+    sb += '        onKeyup="calc.changeItem(' + i + ',this.value)"></td>\n';
+    sb += '  <td total><i total>0.0</i></td>\n';
+    sb += '</tr>\n';
+  });
+  $('tbody').innerHTML = sb;
+  
+}(window, document));
+</script>
+
+<!--br>
+<a href="https://web.facebook.com/SerabiMatahariBJN/">Fanpage Serabi Matahari</a>
+<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABIAAAAQCAYAAAAbBi9cAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAAGwAAABsBKkIvZgAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAHZSURBVDiNndK/axNxGMfx9/fubKzmmhCaWJ1c/BEFkWJs4jUqHbRTwUGkW7GDo7NLFao4+h/UFjeXFlSoxsFFEGoWOxjS2ixdKl4g9i659O57X4egRLlAzDN/vq/n+zw8On2UNXltZWbm1kszkTxd29le7edNZN2dv9dueb5aXXuj8vnJiaiM1g8kQ+kfMnRyuQkU3B4IsizrRGJkJCYExGJHQGjnBoICqT2enb1juE0fKQNQave/oXy+OF68as3lLuXwvIB9pwFCVKOyohdSKBSGk6nMxouVpfOmmcBt+uzUtlleXgIgnckQj5vUbTt8Xyo9E1es68+Nw/HxbkT6XoiSw0+fLJ4pFq3IRge+pNFoA7Cw8MAxxk5emMtenAJAqU7I3qtxf36abPZsJKIUtFoBAPX6D75sbr4yAJqe/IMAtNseY8eP9ZoaIUDXOlsxzThSylZfd/RvBTKkfSARAkqldyjC1wNBhq6hVGfEVCqFCHVnIMjzApRShKFk/e16IwicjwNBv49G13Uqla9OuVxuGtBZHl3LVkrx6OEiN6dvkB4d/dsQGslkmqGhGNWtCk7T/QBg2HvftjTEqe7wz8Z3t2rvTn3a+HxZE+poz5+FWs3dr68B/AJMXLiK5nBMCgAAAABJRU5ErkJggg=="-->
+
+</body>
+</html>
